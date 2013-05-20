@@ -103,6 +103,7 @@ void AddSC_boss_vanndar();
 void AddSC_boss_alizabal();                  //Baradin Hold
 void AddSC_boss_argaloth();
 void AddSC_instance_baradin_hold();
+void AddSC_boss_occuthar();
 void AddSC_instance_bastion_of_twilight();   //BastionOfTwilight
 void AddSC_boss_theralion_and_valiona();
 void AddSC_boss_sinestra();
@@ -161,11 +162,12 @@ void AddSC_deadmines();                      //Deadmines
 void AddSC_instance_deadmines();
 void AddSC_gnomeregan();                     //Gnomeregan
 void AddSC_instance_gnomeregan();
-void AddSC_boss_general_umbriss();           //Grimbatol
-void AddSC_boss_forgemaster_throngus();
-void AddSC_boss_drahga_shadowburner();
+void AddSC_boss_drahga_shadowburner();       //Grim Batol
 void AddSC_boss_erudax();
+void AddSC_boss_throngus();
+void AddSC_boss_general_umbriss();
 void AddSC_instance_grim_batol();
+void AddSC_mob_trash_grim_batol();
 void AddSC_boss_attumen();                   //Karazhan
 void AddSC_boss_curator();
 void AddSC_boss_maiden_of_virtue();
@@ -778,6 +780,7 @@ void AddEasternKingdomsScripts()
     AddSC_boss_alizabal();                  //Baradin Hold
 	AddSC_boss_argaloth();
     AddSC_instance_baradin_hold();
+	AddSC_boss_occuthar();
     AddSC_instance_bastion_of_twilight();   //BastionOfTwilight
     AddSC_boss_theralion_and_valiona();
     AddSC_boss_sinestra();
@@ -836,11 +839,12 @@ void AddEasternKingdomsScripts()
     AddSC_instance_deadmines();
     AddSC_gnomeregan();                     //Gnomeregan
     AddSC_instance_gnomeregan();
-    AddSC_boss_general_umbriss();           //Grimbatol
-    AddSC_boss_forgemaster_throngus();
-    AddSC_boss_drahga_shadowburner();
+    AddSC_boss_drahga_shadowburner();       //Grim Batol
     AddSC_boss_erudax();
-    AddSC_instance_grim_batol();	
+    AddSC_boss_throngus();
+    AddSC_boss_general_umbriss();
+    AddSC_instance_grim_batol();
+    AddSC_mob_trash_grim_batol();
     AddSC_boss_attumen();                   //Karazhan
     AddSC_boss_curator();
     AddSC_boss_maiden_of_virtue();

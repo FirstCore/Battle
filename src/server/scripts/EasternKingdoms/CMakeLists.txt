@@ -20,6 +20,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BaradinHold/boss_alizabal.cpp
   EasternKingdoms/BaradinHold/boss_argaloth.cpp
   EasternKingdoms/BaradinHold/instance_baradin_hold.cpp
+  EasternKingdoms/BaradinHold/boss_occuthar.cpp
   EasternKingdoms/BlackrockCaverns/blackrock_caverns.h
   EasternKingdoms/BlackrockCaverns/boss_ascendant_lord_obsidius.cpp
   EasternKingdoms/BlackrockCaverns/boss_beauty.cpp
@@ -59,12 +60,13 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Gnomeregan/instance_gnomeregan.cpp
   EasternKingdoms/Gnomeregan/gnomeregan.cpp
   EasternKingdoms/Gnomeregan/gnomeregan.h
-  EasternKingdoms/GrimBatol/grim_batol.h
-  EasternKingdoms/GrimBatol/boss_drahga_shadowburner.cpp
+  EasternKingdoms/GrimBatol/boss_drahga.cpp
   EasternKingdoms/GrimBatol/boss_erudax.cpp
-  EasternKingdoms/GrimBatol/boss_forgemaster_throngus.cpp
-  EasternKingdoms/GrimBatol/boss_general_umbriss.cpp
-  EasternKingdoms/GrimBatol/instance_grim_batol.cpp    
+  EasternKingdoms/GrimBatol/boss_throngus.cpp
+  EasternKingdoms/GrimBatol/boss_umbriss.cpp
+  EasternKingdoms/GrimBatol/grimbatol.h
+  EasternKingdoms/GrimBatol/instance_grim_batol.cpp
+  EasternKingdoms/GrimBatol/mob_trash_grimbatol.cpp
   EasternKingdoms/zone_redridge_mountains.cpp
   EasternKingdoms/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
   EasternKingdoms/BlackrockDepths/boss_gorosh_the_dervish.cpp
