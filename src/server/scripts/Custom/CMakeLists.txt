@@ -10,25 +10,6 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-<<<<<<< HEAD
-  Custom/hunterpet_vendor.cpp
-  Custom/Transmogrification.cpp
-  Custom/Transmogrification.h
-  Custom/chat_censure.cpp
-  Custom/argent_tournament.cpp
-  Custom/npc_other.cpp
-  Custom/npc_gc_vendor.cpp
-  Custom/npc_arena_team_top.cpp
-  Custom/npc_crypt_run.cpp
-  Custom/mod_MultiKill.cpp
-  Custom/npc_maniek.cpp
-  Custom/npc_mmr_reset.cpp
-  Custom/npc_shop.cpp
-  Custom/world_chat_race.cpp
-  Custom/allinone.cpp
-  Custom/ArenaFastStart.cpp
-=======
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
 )
 
 message("  -> Prepared: Custom")

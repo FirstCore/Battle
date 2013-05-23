@@ -179,8 +179,6 @@ const uint8 TOTAL_LOCALES = 9;
 #define MAX_LOCALES 8
 #define MAX_ACCOUNT_TUTORIAL_VALUES 8
 
-#define _PACKAGENAME_ETALON "Core: BattleCore\nDeveloper: Vitasic\n"
-
 extern char const* localeNames[TOTAL_LOCALES];
 
 LocaleConstant GetLocaleByName(const std::string& name);

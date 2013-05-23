@@ -1102,15 +1102,6 @@ AccountInstancesPerHour = 5
 RBAC.DefaultGroups = ""
 
 #
-#   Update.Account.Access.Enable
-#        Description: AutoComplete table rbac_account_groups during registration through the web face.
-#                          Not to include in debug mode! (All players will be given all the rights!)
-#         Default:    0 - Disable
-#                     1 - (Enabled)
-
-Update.Account.Access.Enable = 0
-
-#
 ###################################################################################################
 
 ###################################################################################################
@@ -1518,19 +1509,6 @@ PreserveCustomChannels = 1
 #                     0  - (Disabled, Infinite channel storage)
 
 PreserveCustomChannelDuration = 14
-
-#  
-# Includes satellite to search for work elsewhere LFG 
-# Default: 1 - Enable  
-#          0 - Disable  
- 
-LFG.Location.All = 1
-
-#     Chat.DisableWhenPlayerCreate
-#        Description: Disable chat for player who total played time not equal to X (in seconds)
-#        Default:     900 seconds   (equal to 15 minutes)
- 
-Chat.DisableWhenPlayerCreate = 0
 
 #
 ###################################################################################################
@@ -2487,23 +2465,6 @@ Guild.AllowMultipleGuildMaster = 0
 ShowKickInWorld = 0
 
 #
-#     ShowMuteInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
-#                     player gets mute
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-ShowMuteInWorld = 0
-
-#     ShowBanInWorld
-#        Description: Determines whether a message is broadcasted to the entire server when a
-#                     player gets ban
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-ShowBanInWorld = 0
-
-#
 #     RecordUpdateTimeDiffInterval
 #        Description: Time (in milliseconds) update time diff is written to the log file.
 #                     Update diff can be used as a performance indicator. Diff < 300: good
@@ -2881,23 +2842,6 @@ Currency.MaxHonorPoints = 4000
 
 Currency.StartJusticePoints = 0
 
-<<<<<<< HEAD
-###################################################################################################################
-# Gm.Chat
-#
-#    Gm.Chat.Blue.Enable
-#        Description: Gm.Chat.Blue
-#        Default:     0 - (Disable)
-#                     1 - (Enable)
-#
-###################################################################################################################
-
-Gm.Chat.Blue.Enable = 0
-
-###################################################################################################################
-# Armory!
-=======
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
 #
 #    Currency.MaxJusticePoints
 #        Amount justice points a player can have

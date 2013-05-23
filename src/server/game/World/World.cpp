@@ -1199,8 +1199,6 @@ void World::LoadConfigSettings(bool reload)
 
     m_bool_configs[CONFIG_NO_RESET_TALENT_COST] = ConfigMgr::GetBoolDefault("NoResetTalentsCost", false);
     m_bool_configs[CONFIG_SHOW_KICK_IN_WORLD] = ConfigMgr::GetBoolDefault("ShowKickInWorld", false);
-    m_bool_configs[CONFIG_SHOW_MUTE_IN_WORLD] =  ConfigMgr::GetBoolDefault("ShowMuteInWorld", false);
-    m_bool_configs[CONFIG_SHOW_BAN_IN_WORLD] =  ConfigMgr::GetBoolDefault("ShowBanInWorld", false);
     m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = ConfigMgr::GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
     m_int_configs[CONFIG_MIN_LOG_UPDATE] = ConfigMgr::GetIntDefault("MinRecordUpdateTimeDiff", 100);
     m_int_configs[CONFIG_NUMTHREADS] = ConfigMgr::GetIntDefault("MapUpdate.Threads", 1);
@@ -1262,49 +1260,6 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
     m_bool_configs[CONFIG_UI_QUESTLEVELS_IN_DIALOGS] = ConfigMgr::GetBoolDefault("UI.ShowQuestLevelsInDialogs", false);
 
-<<<<<<< HEAD
-    // PvP Rank
-    rate_values[RATE_PVP_RANK_EXTRA_HONOR] = ConfigMgr::GetFloatDefault("PvPRank.Rate.ExtraHonor", 0);
-    std::string s_pvp_ranks = ConfigMgr::GetStringDefault("PvPRank.HKPerRank", "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,30000,50000");
-    char *c_pvp_ranks = const_cast<char*>(s_pvp_ranks.c_str());
-    for (int i = 0; i !=HKRANKMAX; i++)
-    {
-        if (i==0)
-            pvp_ranks[0] = 0;
-        else if (i==1)
-            pvp_ranks[1] = atoi(strtok (c_pvp_ranks, ","));
-        else
-            pvp_ranks[i] = atoi(strtok (NULL, ","));
-    }
-
-    //Passive Anticheat System!
-    m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = ConfigMgr::GetBoolDefault("Anticheat.Enable", true);
-    m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = ConfigMgr::GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
-    m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = ConfigMgr::GetIntDefault("Anticheat.DetectionsEnabled",31);
-    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
-    m_bool_configs[CONFIG_BAN_PLAYER] = ConfigMgr::GetBoolDefault("Anticheat.Ban", true);
-
-    /** World of Warcraft Armory **/
-    m_bool_configs[CONFIG_ARMORY_ENABLE] = ConfigMgr::GetBoolDefault("Armory.Enable", true);
-    /** World of Warcraft Armory **/
-
-    //Allow Two Side Interaction Chat
-    m_int_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT_AREA] = ConfigMgr::GetIntDefault("AllowTwoSide.Interaction.Chat.Area", -1);
-    
-    //LFG Location ALL
-    m_bool_configs[CONFIG_LFG_LOCATION_ALL] = ConfigMgr::GetBoolDefault("LFG.Location.All", true); 
-
-    // Gm chat blue
-    m_bool_configs[CONFIG_GM_BLUE_CHAT_ENABLE] = ConfigMgr::GetBoolDefault("Gm.Chat.Blue.Enable", false);
-
-    // Disable Chat
-    m_int_configs[CONFIG_INT_CHAT_DISABLE_TIME]  = ConfigMgr::GetIntDefault("Chat.DisableWhenPlayerCreate", 60);
-
-    // Add default players group if not created yet
-    m_bool_configs[CONFIG_UPDATE_ACCOUNT_ACCESS_ENABLE] = ConfigMgr::GetBoolDefault("Update.Account.Access.Enable", false);
-
-=======
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
     // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);

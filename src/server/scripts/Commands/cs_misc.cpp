@@ -913,7 +913,6 @@ public:
     static bool HandleKickPlayerCommand(ChatHandler* handler, char const* args)
     {
         Player* target = NULL;
-        std::string announce;
         std::string playerName;
         if (!handler->extractPlayerTarget((char*)args, &target, NULL, &playerName))
             return false;
@@ -935,16 +934,6 @@ public:
             handler->PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
 
         target->GetSession()->KickPlayer();
-
-        if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-        {
-           announce = "The character ";
-           announce += playerName.c_str();
-           announce += " was kicked by the character ";
-           announce += handler->GetSession()->GetPlayerName();
-           announce += ".";
-           sWorld->SendServerMessage(SERVER_MSG_STRING, announce.c_str()); 
-        }
 
         return true;
     }
@@ -1811,8 +1800,6 @@ public:
     // mute player for some times
     static bool HandleMuteCommand(ChatHandler* handler, char const* args)
     {
-        std::string announce;
-
         char* nameStr;
         char* delayStr;
         handler->extractOptFirstArg((char*)args, &nameStr, &delayStr);
@@ -1823,13 +1810,6 @@ public:
         std::string muteReasonStr = "No reason";
         if (muteReason != NULL)
             muteReasonStr = muteReason;
-
-        if(!muteReason)
-        {
-            handler->PSendSysMessage("You must enter a reason of mute");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
 
         Player* target;
         uint64 targetGuid;
@@ -1879,19 +1859,6 @@ public:
         std::string nameLink = handler->playerLink(targetName);
 
         handler->PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notSpeakTime, muteReasonStr.c_str());
-
-        if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
-        {
-            announce = "The character ";
-            announce += nameLink.c_str();
-            announce += " was muted for ";
-            announce += delayStr;
-            announce += " minutes by the character ";
-            announce += handler->GetSession()->GetPlayerName();
-            announce += ". The reason is: ";
-            announce += muteReasonStr.c_str();
-            sWorld->SendServerMessage(SERVER_MSG_STRING, announce.c_str()); 
-        }
 
         return true;
     }

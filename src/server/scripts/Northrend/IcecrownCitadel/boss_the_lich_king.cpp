@@ -1496,16 +1496,6 @@ class npc_valkyr_shadowguard : public CreatureScript
                 switch (id)
                 {
                     case POINT_DROP_PLAYER:
-<<<<<<< HEAD
-/*                        me->GetPosition(&_current);
-                        if (_current.GetPositionX() != _dropPoint.GetPositionX() || _current.GetPositionY() != _dropPoint.GetPositionY())
-                        {
-                            _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 0);
-                            break;
-                        }
-*/
-=======
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
                         DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                         me->DespawnOrUnsummon(1000);
                         break;
@@ -1581,10 +1571,6 @@ class npc_valkyr_shadowguard : public CreatureScript
         private:
             EventMap _events;
             Position _dropPoint;
-<<<<<<< HEAD
-/*            Position _current;*/
-=======
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
             uint64 _grabbedPlayer;
             InstanceScript* _instance;
         };

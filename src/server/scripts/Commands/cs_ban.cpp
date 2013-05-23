@@ -147,8 +147,6 @@ public:
         if (!*args)
             return false;
 
-       std::string announce;
-
         char* cnameOrIP = strtok((char*)args, " ");
         if (!cnameOrIP)
             return false;
@@ -212,24 +210,6 @@ public:
                 }
                 handler->SetSentErrorMessage(true);
                 return false;
-        }
-
-        if (sWorld->getBoolConfig(CONFIG_SHOW_BAN_IN_WORLD))
-        {
-	  if (mode == BAN_CHARACTER)
-               announce = "The character '";
-          else if (mode == BAN_IP)
-                       announce = "The IP '";
-                   else
-                     announce = "Account ";
-                     announce += nameOrIP.c_str();
-                     announce += " was banned for ";
-                     announce += durationStr;
-                     announce += " by the character ";
-                     announce +=  handler->GetSession()->GetPlayerName();
-                     announce += ". The reason is: ";
-                     announce += reasonStr;
-                     sWorld->SendServerMessage(SERVER_MSG_STRING, announce.c_str()); 
         }
 
         return true;

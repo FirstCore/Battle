@@ -23,34 +23,6 @@ void AddSC_example_escort();
 void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
-<<<<<<< HEAD
-//Hunter Pet Vendor
-void AddSC_npc_hunterpetvendor();
-//Transmogrification
-void AddSC_NPC_Transmogrify();
-//Chat Censure
-void AddSC_System_Censure();
-// Argent Tournament quest scripts
-void AddSC_ArgentTournament();
-//TeleNPC2
-void AddSC_npc_teleport();
-void AddSC_npc_other();
-// Npc Top 10 Arena Teams
-void AddSC_npc_arena_setup();
-// [MOD] MultiKill
-void AddSC_Mod_Multikill(); // by Codels
-// Mr.Maniek
-void AddSC_npc_maniek();
-// NPC MMR Master
-void AddSC_npc_mmr_reset();
-// NPC Astranaar SHOP
-void AddSC_npc_shop();
-void AddSC_cs_world_chat();
-void AddSC_pryds_allinone();
-// Implentement Arena Crystal
-void AddSC_fast_arena_start();
-=======
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1404,37 +1376,6 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-<<<<<<< HEAD
-    //Hunter Pet Vendor
-    AddSC_npc_hunterpetvendor();
-    //Transmogrification
-    AddSC_NPC_Transmogrify();
-    //Chat Censure
-    AddSC_System_Censure();
-    // Argent Tournament quest scripts
-    AddSC_ArgentTournament();
-     //TeleNPC2
-     AddSC_npc_teleport();
-     AddSC_npc_other();
-    // GC custom
-    AddSC_custom();
-    AddSC_crypt_run();
-    // Npc Top 10 Arena Teams
-    AddSC_npc_arena_setup();
-    // [MOD] MultiKill
-    AddSC_Mod_Multikill(); // by Codels
-    // Mr.Maniek
-    AddSC_npc_maniek();
-    // NPC MMR Master
-    AddSC_npc_mmr_reset();
-    // NPC Astranaar SHOP
-    AddSC_npc_shop();
-    AddSC_cs_world_chat();
-    AddSC_pryds_allinone();
-    // Implentement Arena Crystal
-    AddSC_fast_arena_start();
-=======
 
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
 #endif
 }

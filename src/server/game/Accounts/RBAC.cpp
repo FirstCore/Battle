@@ -404,11 +404,6 @@ void RBACData::LoadFromDB()
         }
         while (result->NextRow());
     }
-    // add default players group if not created yet
-    else
-    {
-        if (sWorld->getBoolConfig(CONFIG_UPDATE_ACCOUNT_ACCESS_ENABLE)) sAccountMgr->UpdateAccountAccess(this, GetId(), 0, -1);
-    }
 
     sLog->outDebug(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Loading roles", GetId(), GetName().c_str());
     // Load account roles (granted and denied) that affect current realm

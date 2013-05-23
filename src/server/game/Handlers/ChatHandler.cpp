@@ -221,20 +221,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
         }
-<<<<<<< HEAD
-
-        if ((sender->GetTotalPlayedTime() <= sWorld->getIntConfig(CONFIG_INT_CHAT_DISABLE_TIME)) && sender->GetSession()->GetSecurity() == SEC_PLAYER)
-        {
-            std::string adStr = secsToTimeString(sWorld->getIntConfig(CONFIG_INT_CHAT_DISABLE_TIME) - sender->GetTotalPlayedTime());
-            SendNotification(GetTrinityString(LANG_DISABLE_CHAT), adStr.c_str());
-            recvData.rfinish();
-            return;
-        }
-
-        if (type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
-            sender->UpdateSpeakTime();
-=======
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
     }
     else
         lang = LANG_UNIVERSAL;
@@ -310,9 +296,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
         }
     }
-
-    if (sender->isGMChat() && sWorld->getBoolConfig(CONFIG_GM_BLUE_CHAT_ENABLE) && !msg.empty())
-        msg = "|cff2998ff" + msg + "|r";
 
     switch (type)
     {

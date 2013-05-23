@@ -15146,50 +15146,9 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
     if (!target)
         return;
 
-<<<<<<< HEAD
-    switch (type)
-    {
-        case CR_CRIT_TAKEN_MELEE:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetMeleeCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetMeleeCritDamageReduction(*damage)*1.34;
-                *damage -= target->GetMeleeDamageReduction(*damage)*1.38;
-            }
-            break;
-        case CR_CRIT_TAKEN_RANGED:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetRangedCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetRangedCritDamageReduction(*damage)*1.34;
-                *damage -= target->GetRangedDamageReduction(*damage)*1.38;
-            }
-            break;
-        case CR_CRIT_TAKEN_SPELL:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetSpellCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetSpellCritDamageReduction(*damage)*1.34;
-                *damage -= target->GetSpellDamageReduction(*damage)*1.38;
-            }
-            break;
-        default:
-            break;
-    }
-=======
     if (isCrit)
         *damage -= target->GetCritDamageReduction(*damage);
     *damage -= target->GetDamageReduction(*damage);
->>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
 }
 
 // Melee based spells can be miss, parry or dodge on this step

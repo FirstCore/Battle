@@ -235,8 +235,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
                     flags |= UPDATEFLAG_TRANSPORT;
                     break;
                 default:
-                    if (((GameObject*)this)->GetOwner())
-                        updatetype = UPDATETYPE_CREATE_OBJECT2;
                     break;
             }
         }
