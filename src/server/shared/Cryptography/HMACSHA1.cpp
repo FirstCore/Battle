@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +44,7 @@ void HmacHash::Finalize()
 {
     uint32 length = 0;
     HMAC_Final(&m_ctx, (uint8*)m_digest, &length);
-    ASSERT(length == SHA_DIGEST_LENGTH)
+    ASSERT(length == SHA_DIGEST_LENGTH);
 }
 
 uint8 *HmacHash::ComputeHash(BigNumber* bn)

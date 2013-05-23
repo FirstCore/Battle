@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -206,7 +210,15 @@ enum TrinityStrings
     LANG_YOU_CHANGE_RUNIC_POWER         = 173,
     LANG_YOURS_RUNIC_POWER_CHANGED      = 174,
     LANG_LIQUID_STATUS                  = 175,
-    // Room for more level 1              176-199 not used
+
+    LANG_PHASING_REPORT_STATUS          = 176,
+    LANG_PHASING_NO_DEFINITIONS         = 177,              // Phasing
+    LANG_PHASING_SUCCESS                = 178,
+    LANG_PHASING_FAILED                 = 179,
+    LANG_PHASING_LAST_PHASE             = 180,
+    LANG_PHASING_LIST                   = 181,
+    LANG_PHASING_PHASEMASK              = 182,
+    // Room for more level 1              183-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -733,12 +745,12 @@ enum TrinityStrings
     LANG_DEBUG_ARENA_OFF                = 738,
     LANG_DEBUG_BG_ON                    = 739,
     LANG_DEBUG_BG_OFF                   = 740,
-    LANG_DIST_ARENA_POINTS_START        = 741,
-    LANG_DIST_ARENA_POINTS_ONLINE_START = 742,
-    LANG_DIST_ARENA_POINTS_ONLINE_END   = 743,
-    LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
-    LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
-    LANG_DIST_ARENA_POINTS_END          = 746,
+//  LANG_DIST_ARENA_POINTS_START        = 741,
+//  LANG_DIST_ARENA_POINTS_ONLINE_START = 742,
+//  LANG_DIST_ARENA_POINTS_ONLINE_END   = 743,
+//  LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
+//  LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
+//  LANG_DIST_ARENA_POINTS_END          = 746,
     LANG_BG_DISABLED                    = 747,
     LANG_ARENA_DISABLED                 = 748,
 //                                      = 749, not used
@@ -1172,6 +1184,7 @@ enum TrinityStrings
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,
+<<<<<<< HEAD
     LANG_BAN_CHEATER                    = 11002,
 
     // Disable Chat
@@ -1216,6 +1229,8 @@ enum TrinityStrings
     LANG_POPUP_TRANSMOGRIFY             = 11128,
 
     LANG_ERR_NO_TOKEN                   = 11129
+=======
+>>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

@@ -236,9 +236,6 @@ void Vehicle::ApplyAllImmunities()
             // why we need to apply this? we can simple add immunities to slow mechanic in DB
             _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
             break;
-        case 321: // Pilgrims Bounty: Chair
-            _me->SetControlled(true, UNIT_STATE_ROOT);
-            break;
         default:
             break;
     }
@@ -520,7 +517,6 @@ void Vehicle::RemovePassenger(Unit* unit)
 
     if (_me->IsInWorld())
     {
-        unit->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
         unit->m_movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         unit->m_movementInfo.t_time = 0;
         unit->m_movementInfo.t_seat = 0;
@@ -560,6 +556,7 @@ void Vehicle::RelocatePassengers()
             float px, py, pz, po;
             passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
             CalculatePassengerPosition(px, py, pz, po);
+
             passenger->UpdatePosition(px, py, pz, po);
         }
     }
@@ -677,7 +674,7 @@ uint8 Vehicle::GetAvailableSeatCount() const
     return ret;
 }
 
-void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o) const
 {
     float inx = x, iny = y, inz = z, ino = o;
     o = GetBase()->GetOrientation() + ino;
@@ -686,7 +683,7 @@ void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
     z = GetBase()->GetPositionZ() + inz;
 }
 
-void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o) const
 {
     o -= GetBase()->GetOrientation();
     z -= GetBase()->GetPositionZ();
@@ -826,15 +823,15 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         if (Battleground* bg = player->GetBattleground())
             bg->EventPlayerDroppedFlag(player);
 
-        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        player->GetSession()->SendPacket(&data);
+        player->StopCastingCharm();
+        player->StopCastingBindSight();
+        player->SendOnCancelExpectedVehicleRideAura();
         player->UnsummonPetTemporaryIfAny();
     }
 
     if (Seat->second.SeatInfo->m_flags && !(Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_ALLOW_TURNING))
         Passenger->AddUnitState(UNIT_STATE_ONVEHICLE);
 
-    Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;
     Passenger->m_movementInfo.t_pos.Relocate(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
     Passenger->m_movementInfo.t_time = 0; // 1 for player
@@ -843,7 +840,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
         Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
-        ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE))  // SMSG_CLIENT_CONTROL
+        ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE));  // SMSG_CLIENT_CONTROL
 
     Passenger->SendClearTarget();                            // SMSG_BREAK_TARGET
     Passenger->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
@@ -856,10 +853,10 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     init.SetTransportEnter();
     init.Launch();
 
-    if (Target->GetBase()->GetTypeId() == TYPEID_UNIT)
+    if (Creature* creature = Target->GetBase()->ToCreature())
     {
-        if (Target->GetBase()->ToCreature()->IsAIEnabled)
-            Target->GetBase()->ToCreature()->AI()->PassengerBoarded(Passenger, Seat->first, true);
+        if (creature->IsAIEnabled)
+            creature->AI()->PassengerBoarded(Passenger, Seat->first, true);
 
         sScriptMgr->OnAddPassenger(Target, Passenger, Seat->first);
 

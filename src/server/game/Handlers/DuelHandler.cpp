@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,34 +52,6 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     time_t now = time(NULL);
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
-
-    // Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power.
-    //                         Elwynn Forest                Durotar                      Circle of Wills                Astranaar          
-    if (player->GetAreaId() == 12 || player->GetAreaId() == 14 || player->GetAreaId() == 4570 || player->GetAreaId() == 415)
-    {
-        player->SetHealth(player->GetMaxHealth());
-        plTarget->SetHealth(plTarget->GetMaxHealth());
-        player->RemoveArenaSpellCooldowns(true);
-        plTarget->RemoveArenaSpellCooldowns(true);
-        // player->RemoveArenaAuras();
-        // plTarget->RemoveArenaAuras();
-        player->RemoveAurasDueToSpell(25771);
-        plTarget->RemoveAurasDueToSpell(25771);
-
-        if (player->getPowerType() == POWER_MANA)
-            player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
-        if (plTarget->getPowerType() == POWER_MANA)
-            plTarget->SetPower(POWER_MANA, plTarget->GetMaxPower(POWER_MANA));
-    }
-
-    if (player->getPowerType() == POWER_RAGE)
-        player->SetPower(POWER_RAGE, 0);
-    if (plTarget->getPowerType() == POWER_RAGE)
-        plTarget->SetPower(POWER_RAGE, 0);
-    if (player->getPowerType() == POWER_RUNIC_POWER)
-        player->SetPower(POWER_RUNIC_POWER, 0);
-    if (plTarget->getPowerType() == POWER_RUNIC_POWER)
-        plTarget->SetPower(POWER_RUNIC_POWER, 0);
 
     player->SendDuelCountdown(3000);
     plTarget->SendDuelCountdown(3000);

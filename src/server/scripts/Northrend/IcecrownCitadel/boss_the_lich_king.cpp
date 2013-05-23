@@ -374,25 +374,6 @@ class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
         uint32 _notAura2;
 };
 
-class HeightDifferenceCheck
-{
-    public:
-        HeightDifferenceCheck(GameObject* go, float diff, bool reverse)
-            : _baseObject(go), _difference(diff), _reverse(reverse)
-        {
-        }
-
-        bool operator()(WorldObject* unit) const
-        {
-            return (unit->GetPositionZ() - _baseObject->GetPositionZ() > _difference) != _reverse;
-        }
-
-    private:
-        GameObject* _baseObject;
-        float _difference;
-        bool _reverse;
-};
-
 class FrozenThroneResetWorker
 {
     public:
@@ -662,7 +643,6 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
                 {
                     events.SetPhase(PHASE_TRANSITION);
-                    SetImmuneToTaunt(true);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_1, CenterPosition);
@@ -672,7 +652,6 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO) && !HealthAbovePct(40))
                 {
                     events.SetPhase(PHASE_TRANSITION);
-                    SetImmuneToTaunt(true);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_2, CenterPosition);
@@ -682,7 +661,6 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_THREE) && !HealthAbovePct(10))
                 {
                     me->SetReactState(REACT_PASSIVE);
-                    me->InterruptNonMeleeSpells(true);
                     me->AttackStop();
                     events.Reset();
                     events.SetPhase(PHASE_OUTRO);
@@ -820,7 +798,6 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
-                        SetImmuneToTaunt(false);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE, 62500, 0, PHASE_TRANSITION);
@@ -836,7 +813,6 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
-                        SetImmuneToTaunt(false);
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
                         summons.DespawnEntry(NPC_VALKYR_SHADOWGUARD);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
@@ -1116,21 +1092,6 @@ class boss_the_lich_king : public CreatureScript
             }
 
         private:
-
-            void SetImmuneToTaunt(bool apply)	
-            {	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, apply);	
-
-                // Following might not be necessay, but just in case...	
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TOTAL_THREAT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CRITICAL_THREAT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT_ALL, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_MODIFY_THREAT_PERCENT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_REDIRECT_THREAT, apply);	
-            }	
-
             void SendMusicToPlayers(uint32 musicId) const
             {
                 WorldPacket data(SMSG_PLAY_MUSIC, 4);
@@ -1535,6 +1496,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                 switch (id)
                 {
                     case POINT_DROP_PLAYER:
+<<<<<<< HEAD
 /*                        me->GetPosition(&_current);
                         if (_current.GetPositionX() != _dropPoint.GetPositionX() || _current.GetPositionY() != _dropPoint.GetPositionY())
                         {
@@ -1542,6 +1504,8 @@ class npc_valkyr_shadowguard : public CreatureScript
                             break;
                         }
 */
+=======
+>>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
                         DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                         me->DespawnOrUnsummon(1000);
                         break;
@@ -1553,7 +1517,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                             {
                                 std::list<Creature*> triggers;
                                 GetCreatureListWithEntryInGrid(triggers, me, NPC_WORLD_TRIGGER, 150.0f);
-                                triggers.remove_if(HeightDifferenceCheck(platform, 5.0f, true));
+                                triggers.remove_if(Trinity::HeightDifferenceCheck(platform, 5.0f, true));
                                 if (triggers.empty())
                                     return;
 
@@ -1617,7 +1581,10 @@ class npc_valkyr_shadowguard : public CreatureScript
         private:
             EventMap _events;
             Position _dropPoint;
+<<<<<<< HEAD
 /*            Position _current;*/
+=======
+>>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
             uint64 _grabbedPlayer;
             InstanceScript* _instance;
         };
@@ -1644,7 +1611,6 @@ class npc_strangulate_vehicle : public CreatureScript
             {
                 me->SetFacingToObject(summoner);
                 DoCast(summoner, SPELL_HARVEST_SOUL_VEHICLE);
-                summoner->ClearUnitState(UNIT_STATE_ONVEHICLE); // HACK: Target needs to be healable
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_MOVE_TO_LICH_KING, 2000);
                 _events.ScheduleEvent(EVENT_TELEPORT, 6000);
@@ -1961,14 +1927,10 @@ class npc_spirit_bomb : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/)
             {
-                float destX, destY, destZ, Z;
-                me->GetPosition(destX, destY, Z);
-                me->NearTeleportTo(destX, destY, Z+30.0f, me->GetOrientation());
-                me->Relocate(destX, destY, Z+30.0f);
-                me->SendMovementFlagUpdate();
+                float destX, destY, destZ;
+                me->GetPosition(destX, destY);
                 destZ = 1055.0f;    // approximation, gets more precise later
                 me->UpdateGroundPositionZ(destX, destY, destZ);
-                me->SetSpeed(MOVE_FLIGHT, 0.5f, true);
                 me->GetMotionMaster()->MovePoint(POINT_GROUND, destX, destY, destZ);
             }
 
@@ -2350,7 +2312,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (GameObject* platform = ObjectAccessor::GetGameObject(*GetCaster(), GetCaster()->GetInstanceScript()->GetData64(DATA_ARTHAS_PLATFORM)))
-                    targets.remove_if(HeightDifferenceCheck(platform, 5.0f, false));
+                    targets.remove_if(Trinity::HeightDifferenceCheck(platform, 5.0f, false));
             }
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)

@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,39 +28,93 @@
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 
-#define CAST_PLR(a)     (dynamic_cast<Player*>(a))
-#define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 
 class InstanceScript;
 
-class SummonList : public std::list<uint64>
+class SummonList
 {
-    public:
-        explicit SummonList(Creature* creature) : me(creature) {}
-        void Summon(Creature* summon) { push_back(summon->GetGUID()); }
-        void Despawn(Creature* summon) { remove(summon->GetGUID()); }
-        void DespawnEntry(uint32 entry);
-        void DespawnAll();
+public:
+    typedef std::list<uint64> StorageType;
+    typedef StorageType::iterator iterator;
+    typedef StorageType::const_iterator const_iterator;
+    typedef StorageType::size_type size_type;
+    typedef StorageType::value_type value_type;
 
-        template <class Predicate> void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
+    explicit SummonList(Creature* creature)
+        : me(creature)
+    { }
+
+    // And here we see a problem of original inheritance approach. People started
+    // to exploit presence of std::list members, so I have to provide wrappers
+
+    iterator begin()
+    {
+        return storage_.begin();
+    }
+
+    const_iterator begin() const
+    {
+        return storage_.begin();
+    }
+
+    iterator end()
+    {
+        return storage_.end();
+    }
+
+    const_iterator end() const
+    {
+        return storage_.end();
+    }
+
+    iterator erase(iterator i)
+    {
+        return storage_.erase(i);
+    }
+
+    bool empty() const
+    {
+        return storage_.empty();
+    }
+
+    size_type size() const
+    {
+        return storage_.size();
+    }
+
+    void Summon(Creature const* summon) { storage_.push_back(summon->GetGUID()); }
+    void Despawn(Creature const* summon) { storage_.remove(summon->GetGUID()); }
+    void DespawnEntry(uint32 entry);
+    void DespawnAll();
+
+    template <typename T>
+    void DespawnIf(T const &predicate)
+    {
+        storage_.remove_if(predicate);
+    }
+
+    template <class Predicate>
+    void DoAction(int32 info, Predicate& predicate, uint16 max = 0)
+    {
+        // We need to use a copy of SummonList here, otherwise original SummonList would be modified
+        StorageType listCopy = storage_;
+        Trinity::Containers::RandomResizeList<uint64, Predicate>(listCopy, predicate, max);
+        for (StorageType::iterator i = listCopy.begin(); i != listCopy.end(); )
         {
-            // We need to use a copy of SummonList here, otherwise original SummonList would be modified
-            std::list<uint64> listCopy = *this;
-            Trinity::Containers::RandomResizeList<uint64, Predicate>(listCopy, predicate, max);
-            for (iterator i = listCopy.begin(); i != listCopy.end(); )
-            {
-                Creature* summon = Unit::GetCreature(*me, *i++);
-                if (summon && summon->IsAIEnabled)
-                    summon->AI()->DoAction(info);
-            }
+            Creature* summon = Unit::GetCreature(*me, *i++);
+            if (summon && summon->IsAIEnabled)
+                summon->AI()->DoAction(info);
         }
+    }
 
-        void DoZoneInCombat(uint32 entry = 0);
-        void RemoveNotExisting();
-        bool HasEntry(uint32 entry) const;
-    private:
-        Creature* me;
+    void DoZoneInCombat(uint32 entry = 0);
+    void RemoveNotExisting();
+    bool HasEntry(uint32 entry) const;
+
+private:
+    Creature* me;
+    StorageType storage_;
 };
 
 class EntryCheckPredicate
@@ -306,6 +364,7 @@ class BossAI : public ScriptedAI
         void _EnterCombat();
         void _JustDied();
         void _JustReachedHome() { me->setActive(false); }
+        void _DespawnAtEvade();
 
         bool CheckInRoom()
         {

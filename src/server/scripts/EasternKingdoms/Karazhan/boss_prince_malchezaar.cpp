@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -145,9 +149,9 @@ public:
 
         void KilledUnit(Unit* who)
         {
-            Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
-            if (pMalchezaar)
-                CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
+            if (Unit* unit = Unit::GetUnit(*me, malchezaar))
+                if (Creature* creature = unit->ToCreature())
+                    creature->AI()->KilledUnit(who);
         }
 
         void SpellHit(Unit* /*who*/, const SpellInfo* spell)

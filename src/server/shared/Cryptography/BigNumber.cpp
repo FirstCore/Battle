@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,18 +28,15 @@
 #include <algorithm>
 
 BigNumber::BigNumber()
-    : _bn(BN_new())
-    , _array(NULL)
+    : _bn(BN_new()), _array(NULL)
 { }
 
 BigNumber::BigNumber(BigNumber const& bn)
-    : _bn(BN_dup(bn._bn))
-    , _array(NULL)
+    : _bn(BN_dup(bn._bn)), _array(NULL)
 { }
 
 BigNumber::BigNumber(uint32 val)
-    : _bn(BN_new())
-    , _array(NULL)
+    : _bn(BN_new()), _array(NULL)
 {
     BN_set_word(_bn, val);
 }

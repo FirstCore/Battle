@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -960,12 +964,12 @@ void hyjalAI::WaypointReached(uint32 waypointId)
             DoCast(me, SPELL_MASS_TELEPORT, false);
         if (me->GetEntry() == THRALL && DummyGuid)
         {
-            Unit* Dummy = Unit::GetUnit(*me, DummyGuid);
-            if (Dummy)
+            if (Creature* creature = Unit::GetCreature(*me, DummyGuid))
             {
-                CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->DoMassTeleport = true;
-                CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->MassTeleportTimer = 20000;
-                Dummy->CastSpell(me, SPELL_MASS_TELEPORT, false);
+                hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+                ai->DoMassTeleport = true;
+                ai->MassTeleportTimer = 20000;
+                creature->CastSpell(me, SPELL_MASS_TELEPORT, false);
             }
         }
         //do some talking

@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -164,24 +168,24 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit(*me, *itr);
-                    if (temp && temp->isAlive())
+                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    if (creature && creature->isAlive())
                     {
-                        (*temp).GetMotionMaster()->Clear(true);
-                        me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        CAST_CRE(temp)->RemoveCorpse();
+                        creature->GetMotionMaster()->Clear(true);
+                        me->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        creature->RemoveCorpse();
                     }
                 }
                 adds.clear();
 
                 for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit(*me, *itr);
-                    if (temp && temp->isAlive())
+                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    if (creature && creature->isAlive())
                     {
-                        (*temp).GetMotionMaster()->Clear(true);
-                        me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        CAST_CRE(temp)->RemoveCorpse();
+                        creature->GetMotionMaster()->Clear(true);
+                        me->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        creature->RemoveCorpse();
                     }
                 }
                 assassins.clear();

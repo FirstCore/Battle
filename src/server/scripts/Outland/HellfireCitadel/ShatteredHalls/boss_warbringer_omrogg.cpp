@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -306,7 +310,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 pLeftHead->AI()->Talk(YELL_DIE_L);
 
-                CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, CAST_CRE(pRightHead)->AI())->DoDeathYell();
+                CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, pRightHead->ToCreature()->AI())->DoDeathYell();
 
                 if (instance)
                     instance->SetData(TYPE_OMROGG, DONE);

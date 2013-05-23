@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -89,10 +93,10 @@ class Vehicle : public TransportBase
         void InitMovementInfoForBase();
 
         /// This method transforms supplied transport offsets into global coordinates
-        void CalculatePassengerPosition(float& x, float& y, float& z, float& o);
+        void CalculatePassengerPosition(float& x, float& y, float& z, float& o) const;
 
         /// This method transforms supplied global coordinates into local offsets
-        void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
+        void CalculatePassengerOffset(float& x, float& y, float& z, float& o) const;
 
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);

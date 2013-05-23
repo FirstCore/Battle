@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -439,9 +443,6 @@ public:
             me->Relocate(x, y, z + 0.94f);
             me->SetDisableGravity(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
-            WorldPacket data;                       //send update position to client
-            me->BuildHeartBeatMsg(&data);
-            me->SendMessageToSet(&data, true);
         }
 
         void UpdateAI(uint32 diff)
@@ -468,9 +469,6 @@ public:
                 me->SetInFront(player);
                 Active = false;
 
-                WorldPacket data;
-                me->BuildHeartBeatMsg(&data);
-                me->SendMessageToSet(&data, true);
                 switch (emote)
                 {
                     case TEXT_EMOTE_KISS:
@@ -761,40 +759,41 @@ public:
 
         void SpellHit(Unit* caster, SpellInfo const* spell)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && spell->Id == 20804)
+            Player* player = caster->ToPlayer();
+            if (!player || !me->isAlive() || spell->Id != 20804)
+                return;
+
+            if (player->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)
+                if (DoctorGUID)
+                    if (Creature* doctor = Unit::GetCreature(*me, DoctorGUID))
+                        CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, player, Coord);
+
+            //make not selectable
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+            //regen health
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
+
+            //stand up
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
+
+            Talk(SAY_DOC);
+
+            uint32 mobId = me->GetEntry();
+            me->SetWalk(false);
+
+            switch (mobId)
             {
-                if ((CAST_PLR(caster)->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (CAST_PLR(caster)->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE))
-                    if (DoctorGUID)
-                        if (Creature* doctor = Unit::GetCreature(*me, DoctorGUID))
-                            CAST_AI(npc_doctor::npc_doctorAI, doctor->AI())->PatientSaved(me, CAST_PLR(caster), Coord);
-
-                //make not selectable
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                //regen health
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
-
-                //stand up
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
-
-                Talk(SAY_DOC);
-
-                uint32 mobId = me->GetEntry();
-                me->SetWalk(false);
-
-                switch (mobId)
-                {
-                    case 12923:
-                    case 12924:
-                    case 12925:
-                        me->GetMotionMaster()->MovePoint(0, H_RUNTOX, H_RUNTOY, H_RUNTOZ);
-                        break;
-                    case 12936:
-                    case 12937:
-                    case 12938:
-                        me->GetMotionMaster()->MovePoint(0, A_RUNTOX, A_RUNTOY, A_RUNTOZ);
-                        break;
-                }
+                case 12923:
+                case 12924:
+                case 12925:
+                    me->GetMotionMaster()->MovePoint(0, H_RUNTOX, H_RUNTOY, H_RUNTOZ);
+                    break;
+                case 12936:
+                case 12937:
+                case 12938:
+                    me->GetMotionMaster()->MovePoint(0, A_RUNTOX, A_RUNTOY, A_RUNTOZ);
+                    break;
             }
         }
 
@@ -1297,7 +1296,7 @@ public:
             case GOSSIP_OPTION_LEARNDUALSPEC:
                 if (player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
                 {
-                    if (!player->HasEnoughMoney(10000000))
+                    if (!player->HasEnoughMoney(uint64(10000000)))
                     {
                         player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                         player->PlayerTalkClass->SendCloseGossip();
@@ -1305,7 +1304,7 @@ public:
                     }
                     else
                     {
-                        player->ModifyMoney(-10000000);
+                        player->ModifyMoney(int64(-10000000));
 
                         // Cast spells that teach dual spec
                         // Both are also ImplicitTarget self and must be cast by player
@@ -1749,52 +1748,53 @@ public:
         void ReceiveEmote(Player* player, uint32 emote)
         {
             me->HandleEmoteCommand(emote);
-            Unit* own = me->GetOwner();
-            if (!own || own->GetTypeId() != TYPEID_PLAYER || CAST_PLR(own)->GetTeam() != player->GetTeam())
-                return;
-            if (emote == TEXT_EMOTE_KISS)
+            Unit* owner = me->GetOwner();
+            if (emote != TEXT_EMOTE_KISS || owner || owner->GetTypeId() != TYPEID_PLAYER ||
+                owner->ToPlayer()->GetTeam() != player->GetTeam())
             {
-                std::string whisp = "";
-                switch (rand() % 8)
-                {
-                    case 0:
-                        whisp.append(SAY_RANDOM_MOJO0);
-                        break;
-                    case 1:
-                        whisp.append(SAY_RANDOM_MOJO1);
-                        break;
-                    case 2:
-                        whisp.append(SAY_RANDOM_MOJO2);
-                        break;
-                    case 3:
-                        whisp.append(SAY_RANDOM_MOJO3);
-                        break;
-                    case 4:
-                        whisp.append(SAY_RANDOM_MOJO4);
-                        break;
-                    case 5:
-                        whisp.append(SAY_RANDOM_MOJO5);
-                        break;
-                    case 6:
-                        whisp.append(SAY_RANDOM_MOJO6a);
-                        whisp.append(player->GetName());
-                        whisp.append(SAY_RANDOM_MOJO6b);
-                        break;
-                    case 7:
-                        whisp.append(SAY_RANDOM_MOJO7);
-                        break;
-                }
-
-                me->MonsterWhisper(whisp.c_str(), player->GetGUID());
-                if (victimGUID)
-                    if (Player* victim = Unit::GetPlayer(*me, victimGUID))
-                        victim->RemoveAura(43906);//remove polymorph frog thing
-                me->AddAura(43906, player);//add polymorph frog thing
-                victimGUID = player->GetGUID();
-                DoCast(me, 20372, true);//tag.hearts
-                me->GetMotionMaster()->MoveFollow(player, 0, 0);
-                hearts = 15000;
+                return;
             }
+
+            std::string whisp = "";
+            switch (rand() % 8)
+            {
+                case 0:
+                    whisp.append(SAY_RANDOM_MOJO0);
+                    break;
+                case 1:
+                    whisp.append(SAY_RANDOM_MOJO1);
+                    break;
+                case 2:
+                    whisp.append(SAY_RANDOM_MOJO2);
+                    break;
+                case 3:
+                    whisp.append(SAY_RANDOM_MOJO3);
+                    break;
+                case 4:
+                    whisp.append(SAY_RANDOM_MOJO4);
+                    break;
+                case 5:
+                    whisp.append(SAY_RANDOM_MOJO5);
+                    break;
+                case 6:
+                    whisp.append(SAY_RANDOM_MOJO6a);
+                    whisp.append(player->GetName());
+                    whisp.append(SAY_RANDOM_MOJO6b);
+                    break;
+                case 7:
+                    whisp.append(SAY_RANDOM_MOJO7);
+                    break;
+            }
+
+            me->MonsterWhisper(whisp.c_str(), player->GetGUID());
+            if (victimGUID)
+                if (Player* victim = Unit::GetPlayer(*me, victimGUID))
+                    victim->RemoveAura(43906); // remove polymorph frog thing
+            me->AddAura(43906, player); // add polymorph frog thing
+            victimGUID = player->GetGUID();
+            DoCast(me, 20372, true); // tag.hearts
+            me->GetMotionMaster()->MoveFollow(player, 0, 0);
+            hearts = 15000;
         }
     };
 
@@ -2560,11 +2560,11 @@ public:
         }
         if (doSwitch)
         {
-            if (!player->HasEnoughMoney(EXP_COST))
+            if (!player->HasEnoughMoney(uint64(EXP_COST)))
                 player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             else if (noXPGain)
             {
-                player->ModifyMoney(-EXP_COST);
+                player->ModifyMoney(-int64(EXP_COST));
                 player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
             else if (!noXPGain)
@@ -2951,572 +2951,6 @@ public:
     };
 };
 
-// Dark Iron Guzzler in the Brewfest achievement 'Down With The Dark Iron'
-enum DarkIronGuzzler
-{
-    NPC_DARK_IRON_GUZZLER = 23709,
-    NPC_DARK_IRON_HERALD = 24536,
-    NPC_DARK_IRON_SPAWN_BUNNY = 23894,
-
-    NPC_FESTIVE_KEG_1 = 23702, // Thunderbrew Festive Keg
-    NPC_FESTIVE_KEG_2 = 23700, // Barleybrew Festive Keg
-    NPC_FESTIVE_KEG_3 = 23706, // Gordok Festive Keg
-    NPC_FESTIVE_KEG_4 = 24373, // T'chalis's Festive Keg
-    NPC_FESTIVE_KEG_5 = 24372, // Drohn's Festive Keg
-
-    SPELL_GO_TO_NEW_TARGET = 42498,
-    SPELL_ATTACK_KEG = 42393,
-    SPELL_RETREAT = 42341,
-    SPELL_DRINK = 42436,
-
-    SAY_RANDOM = 0,
-};
-
-class npc_dark_iron_guzzler : public CreatureScript
-{
-public:
-    npc_dark_iron_guzzler() : CreatureScript("npc_dark_iron_guzzler") { }
-
-    CreatureAI *GetAI(Creature* creature) const
-    {
-        return new npc_dark_iron_guzzlerAI(creature);
-    }
-
-    struct npc_dark_iron_guzzlerAI : public ScriptedAI
-    {
-        npc_dark_iron_guzzlerAI(Creature* creature) : ScriptedAI(creature) { }
-
-        bool atKeg;
-        bool playersLost;
-        bool barleyAlive;
-        bool thunderAlive;
-        bool gordokAlive;
-        bool drohnAlive;
-        bool tchaliAlive;
-
-        uint32 AttackKegTimer;
-        uint32 TalkTimer;
-
-        void Reset()
-        {
-            AttackKegTimer = 5000;
-            TalkTimer = (urand(1000, 120000));
-            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-        }
-
-        void IsSummonedBy(Unit* summoner)
-        {
-            // Only cast the spell on spawn
-            DoCast(me, SPELL_GO_TO_NEW_TARGET);
-        }
-
-        // These values are set through SAI - when a Festive Keg dies it will set data to all Dark Iron Guzzlers within 3 yards (the killers)
-        void SetData(uint32 type, uint32 data)
-        {
-            if (type == 10 && data == 10)
-            {
-                DoCast(me, SPELL_GO_TO_NEW_TARGET);
-                thunderAlive = false;
-            }
-
-            if (type == 11 && data == 11)
-            {
-                DoCast(me, SPELL_GO_TO_NEW_TARGET);
-                barleyAlive = false;
-            }
-
-            if (type == 12 && data == 12)
-            {
-                DoCast(me, SPELL_GO_TO_NEW_TARGET);
-                gordokAlive = false;
-            }
-
-            if (type == 13 && data == 13)
-            {
-                DoCast(me, SPELL_GO_TO_NEW_TARGET);
-                drohnAlive = false;
-            }
-
-            if (type == 14 && data == 14)
-            {
-                DoCast(me, SPELL_GO_TO_NEW_TARGET);
-                tchaliAlive = false;
-            }
-        }
-
-        // As you can see here we do not have to use a spellscript for this
-        void SpellHit(Unit* caster, const SpellInfo* spell)
-        {
-            if (spell->Id == SPELL_DRINK)
-            {
-                // Fake death - it's only visual!
-                me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
-                me->StopMoving();
-
-                // Time based on information from videos
-                me->DespawnOrUnsummon(7000);
-            }
-
-            // Retreat - run back
-            if (spell->Id == SPELL_RETREAT)
-            {
-                // Remove walking flag so we start running
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-
-                if (me->GetAreaId() == 1296)
-                {
-                    me->GetMotionMaster()->MovePoint(1, 1197.63f, -4293.571f, 21.243f);
-                }
-                else if (me->GetAreaId() == 1)
-                {
-                    me->GetMotionMaster()->MovePoint(2, -5152.3f, -603.529f, 398.356f);
-                }
-            }
-
-            if (spell->Id == SPELL_GO_TO_NEW_TARGET)
-            {
-                // If we're at Durotar we target different kegs if we are at at Dun Morogh
-                if (me->GetAreaId() == 1296)
-                {
-                    if (drohnAlive && gordokAlive && tchaliAlive)
-                    {
-                        switch (urand(0, 2))
-                        {
-                        case 0: // Gordok Festive Keg
-                            me->GetMotionMaster()->MovePoint(4, 1220.86f, -4297.37f, 21.192f);
-                            break;
-                        case 1: // Drohn's Festive Keg
-                            me->GetMotionMaster()->MovePoint(5, 1185.98f, -4312.98f, 21.294f);
-                            break;
-                        case 2: // Ti'chali's Festive Keg
-                            me->GetMotionMaster()->MovePoint(6, 1184.12f, -4275.21f, 21.191f);
-                            break;
-                        }
-                    }
-                    else if (!drohnAlive)
-                    {
-                        switch (urand(0, 1))
-                        {
-                        case 0: // Gordok Festive Keg
-                            me->GetMotionMaster()->MovePoint(4, 1220.86f, -4297.37f, 21.192f);
-                            break;
-                        case 1: // Ti'chali's Festive Keg
-                            me->GetMotionMaster()->MovePoint(6, 1184.12f, -4275.21f, 21.191f);
-                            break;
-                        }
-                    }
-                    else if (!gordokAlive)
-                    {
-                        switch (urand(0, 1))
-                        {
-                        case 0: // Drohn's Festive Keg
-                            me->GetMotionMaster()->MovePoint(5, 1185.98f, -4312.98f, 21.294f);
-                            break;
-                        case 1: // Ti'chali's Festive Keg
-                            me->GetMotionMaster()->MovePoint(6, 1184.12f, -4275.21f, 21.191f);
-                            break;
-                        }
-                    }
-                    else if (!tchaliAlive)
-                    {
-                        switch (urand(0, 1))
-                        {
-                        case 0: // Gordok Festive Keg
-                            me->GetMotionMaster()->MovePoint(4, 1220.86f, -4297.37f, 21.192f);
-                            break;
-                        case 1: // Drohn's Festive Keg
-                            me->GetMotionMaster()->MovePoint(5, 1185.98f, -4312.98f, 21.294f);
-                            break;
-                        }
-                    }
-                }
-                // If we're at Dun Morogh we target different kegs if we are at Durotar
-                else if (me->GetAreaId() == 1)
-                {
-                    if (barleyAlive && gordokAlive && thunderAlive)
-                    {
-                        switch (urand(0, 2))
-                        {
-                        case 0: // Barleybrew Festive Keg
-                            me->GetMotionMaster()->MovePoint(7, -5183.67f, -599.58f, 397.177f);
-                            break;
-                        case 1: // Thunderbrew Festive Keg
-                            me->GetMotionMaster()->MovePoint(8, -5159.53f, -629.52f, 397.213f);
-                            break;
-                        case 2: // Gordok Festive Keg
-                            me->GetMotionMaster()->MovePoint(9, -5148.01f, -578.34f, 397.177f);
-                            break;
-                        }
-                    }
-                    else if (!barleyAlive)
-                    {
-                        switch (urand(0, 1))
-                        {
-                        case 0: // Thunderbrew Festive Keg
-                            me->GetMotionMaster()->MovePoint(8, -5159.53f, -629.52f, 397.213f);
-                            break;
-                        case 1: // Gordok Festive Keg
-                            me->GetMotionMaster()->MovePoint(9, -5148.01f, -578.34f, 397.177f);
-                            break;
-                        }
-                    }
-                    else if (!gordokAlive)
-                    {
-                        switch (urand(0, 1))
-                        {
-                        case 0: // Barleybrew Festive Keg
-                            me->GetMotionMaster()->MovePoint(7, -5183.67f, -599.58f, 397.177f);
-                            break;
-                        case 1: // Thunderbrew Festive Keg
-                            me->GetMotionMaster()->MovePoint(8, -5159.53f, -629.52f, 397.213f);
-                            break;
-                        }
-                    }
-                    else if (!thunderAlive)
-                    {
-                        switch (urand(0, 1))
-                        {
-                        case 0: // Barleybrew Festive Keg
-                            me->GetMotionMaster()->MovePoint(7, -5183.67f, -599.58f, 397.177f);
-                            break;
-                        case 1: // Gordok Festive Keg
-                            me->GetMotionMaster()->MovePoint(9, -5148.01f, -578.34f, 397.177f);
-                            break;
-                        }
-                    }
-                }
-                atKeg = false;
-            }
-        }
-
-        void MovementInform(uint32 Type, uint32 PointId)
-        {
-            if (Type != POINT_MOTION_TYPE)
-                return;
-
-            // Arrived at the retreat spot, we should despawn
-            if (PointId == 1 || PointId == 2)
-                me->DespawnOrUnsummon(7000);
-
-            // Arrived at the new keg - the spell has conditions in database
-            if (PointId == 4 || PointId == 5 || PointId == 6 || PointId == 7 || PointId == 8 || PointId == 9)
-            {
-                DoCast(SPELL_ATTACK_KEG);
-                me->SetByteFlag(UNIT_FIELD_BYTES_1, 1, 0x01); // Sit down
-                atKeg = true;
-            }
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!IsHolidayActive(HOLIDAY_BREWFEST))
-                return;
-
-            // If all kegs are dead we should retreat because we have won
-            if ((!gordokAlive && !thunderAlive && !barleyAlive) || (!gordokAlive && !drohnAlive && !tchaliAlive))
-            {
-                DoCast(me, SPELL_RETREAT);
-
-                // We are doing this because we'll have to reset our scripts when we won
-                if (Creature* herald = me->FindNearestCreature(NPC_DARK_IRON_HERALD, 100.0f))
-                    herald->AI()->SetData(20, 20);
-
-                // Despawn all summon bunnies so they will stop summoning guzzlers
-                if (Creature* spawnbunny = me->FindNearestCreature(NPC_DARK_IRON_SPAWN_BUNNY, 100.0f))
-                    spawnbunny->DespawnOrUnsummon();
-            }
-
-            if (TalkTimer <= diff)
-            {
-                me->AI()->Talk(SAY_RANDOM);
-                TalkTimer = (urand(44000, 120000));
-            } else TalkTimer -= diff;
-
-            // Only happens if we're at keg
-            if (atKeg)
-            {
-                if (AttackKegTimer <= diff)
-                {
-                    DoCast(SPELL_ATTACK_KEG);
-                    AttackKegTimer = 5000;
-                } else AttackKegTimer -= diff;
-            }
-        }
-    };
-};
-
-// Achievement: The Turkinator
-enum WildTurkey
-{
-    SPELL_TURKEY_TRACKER        = 62014,
-};
-
-class npc_wild_turkey : public CreatureScript
-{
-    public:
-        npc_wild_turkey() : CreatureScript("npc_wild_turkey") { }
-
-        struct npc_wild_turkeyAI : public ScriptedAI
-        {
-            npc_wild_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void JustDied(Unit* killer)
-            {
-                if (killer && killer->GetTypeId() == TYPEID_PLAYER)
-                    killer->CastSpell(killer, SPELL_TURKEY_TRACKER);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_wild_turkeyAI(creature);
-        }
-};
-
-// Item: Turkey Caller
-enum LonelyTurkey
-{
-    SPELL_STINKER_BROKEN_HEART  = 62004,
-};
-
-class npc_lonely_turkey : public CreatureScript
-{
-    public:
-        npc_lonely_turkey() : CreatureScript("npc_lonely_turkey") { }
-
-        struct npc_lonely_turkeyAI : public ScriptedAI
-        {
-            npc_lonely_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void Reset()
-            {
-                if (me->isSummon())
-                    if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                        me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + 25 * cos(owner->GetOrientation()), owner->GetPositionY() + 25 * cos(owner->GetOrientation()), owner->GetPositionZ());
-
-                _stinkerBrokenHeartTimer = 3.5 * IN_MILLISECONDS;
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (_stinkerBrokenHeartTimer <= diff)
-                {
-                    DoCast(SPELL_STINKER_BROKEN_HEART);
-                    me->setFaction(31);
-                }
-                _stinkerBrokenHeartTimer -= diff;
-            }
-        private:
-            uint32 _stinkerBrokenHeartTimer;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_lonely_turkeyAI(creature);
-        }
-};
-
-/*####
-## npc_argent_pet
-####*/
-
-enum
-{
-    STATE_BANK = 1,
-    STATE_SHOP = 2,
-    STATE_MAIL = 4,
-
-    ACHI_PONY_UP = 3736,
-
-    SPELL_CHECK_MOUNT = 67039,
-    SPELL_CHECK_TIRED = 67334,
-    SPELL_SQUIRE_BANK_ERRAND = 67368,
-    SPELL_SQUIRE_POSTMAN = 67376,
-    SPELL_SQUIRE_SHOP = 67377,
-    SPELL_SQUIRE_TIRED = 67401
-};
-enum Quests
-{
-    QUEST_CHAMP_ORGRIMMAR = 13726,
-    QUEST_CHAMP_UNDERCITY = 13729,
-    QUEST_CHAMP_SENJIN = 13727,
-    QUEST_CHAMP_SILVERMOON = 13731,
-    QUEST_CHAMP_THUNDERBLUFF = 13728,
-    QUEST_CHAMP_STORMWIND = 13699,
-    QUEST_CHAMP_IRONFORGE = 13713,
-    QUEST_CHAMP_GNOMEREGAN = 13723,
-    QUEST_CHAMP_DARNASSUS = 13725,
-    QUEST_CHAMP_EXODAR = 13724
-};
-enum Pennants
-{
-    SPELL_DARNASSUS_PENNANT = 63443,
-    SPELL_EXODAR_PENNANT = 63439,
-    SPELL_GNOMEREGAN_PENNANT = 63442,
-    SPELL_IRONFORGE_PENNANT = 63440,
-    SPELL_ORGRIMMAR_PENNANT = 63444,
-    SPELL_SENJIN_PENNANT = 63446,
-    SPELL_SILVERMOON_PENNANT = 63438,
-    SPELL_STORMWIND_PENNANT = 62727,
-    SPELL_THUNDERBLUFF_PENNANT = 63445,
-    SPELL_UNDERCITY_PENNANT = 63441
-};
-class npc_argent_pet : public CreatureScript
-{
-public:
-    npc_argent_pet() : CreatureScript("npc_argent_pet") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        // Argent Pony Bridle options
-        if (player->HasAchieved(ACHI_PONY_UP))
-            if (!creature->HasAura(SPELL_SQUIRE_TIRED))
-            {
-                uint8 uiBuff = (STATE_BANK | STATE_SHOP | STATE_MAIL);
-                    if (creature->HasAura(SPELL_SQUIRE_BANK_ERRAND))
-                        uiBuff = STATE_BANK;
-                    if (creature->HasAura(SPELL_SQUIRE_SHOP))
-                        uiBuff = STATE_SHOP;
-                    if (creature->HasAura(SPELL_SQUIRE_POSTMAN))
-                        uiBuff = STATE_MAIL;
-                    if (uiBuff & STATE_BANK)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_MONEY_BAG, "Visit a bank.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_BANK);
-                    if (uiBuff & STATE_SHOP)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, "Visit a trader.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-                    if (uiBuff & STATE_MAIL)
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Visit a mailbox.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            }
-
-            // Horde
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_SENJIN))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Darkspear Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_SENJIN_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_UNDERCITY))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Forsaken Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_UNDERCITY_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_ORGRIMMAR))
-               player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Orgrimmar Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_ORGRIMMAR_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_SILVERMOON))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Silvermoon Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_SILVERMOON_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_THUNDERBLUFF))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Thunder Bluff Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_THUNDERBLUFF_PENNANT);
-            //Alliance
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_DARNASSUS))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Darnassus Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_DARNASSUS_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_EXODAR))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Exodar Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_EXODAR_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_GNOMEREGAN))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Gnomeregan Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_GNOMEREGAN_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_IRONFORGE))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Ironforge Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_IRONFORGE_PENNANT);
-            if (player->GetQuestRewardStatus(QUEST_CHAMP_STORMWIND))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Stormwind Champion's Pennant", GOSSIP_SENDER_MAIN, SPELL_STORMWIND_PENNANT);
-
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-            return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        switch (action)
-        {
-            case GOSSIP_ACTION_BANK:
-                creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER);
-                player->GetSession()->SendShowBank(creature->GetGUID());
-                if (!creature->HasAura(SPELL_SQUIRE_BANK_ERRAND))
-                    creature->AddAura(SPELL_SQUIRE_BANK_ERRAND, creature);
-                if (!player->HasAura(SPELL_CHECK_TIRED))
-                    creature->AddAura(SPELL_CHECK_TIRED, player);
-                if (!creature->HasAura(SPELL_CHECK_MOUNT))
-                    creature->AddAura(SPELL_CHECK_MOUNT, creature);
-                break;
-            case GOSSIP_ACTION_TRADE:
-                creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
-                player->GetSession()->SendListInventory(creature->GetGUID());
-                if (!creature->HasAura(SPELL_SQUIRE_SHOP))
-                    creature->AddAura(SPELL_SQUIRE_SHOP, creature);
-                if (!player->HasAura(SPELL_CHECK_TIRED))
-                    creature->AddAura(SPELL_CHECK_TIRED, player);
-                if (!creature->HasAura(SPELL_CHECK_MOUNT))
-                    creature->AddAura(SPELL_CHECK_MOUNT, creature);
-                    break;
-            case GOSSIP_ACTION_INFO_DEF+1:
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
-                creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_MAILBOX);
-                if (!creature->HasAura(SPELL_SQUIRE_POSTMAN))
-                    creature->AddAura(SPELL_SQUIRE_POSTMAN, creature);
-                if (!player->HasAura(SPELL_CHECK_TIRED))
-                    creature->AddAura(SPELL_CHECK_TIRED, player);
-                if (!creature->HasAura(SPELL_CHECK_MOUNT))
-                    creature->AddAura(SPELL_CHECK_MOUNT, creature);
-                break;
-
-            case SPELL_SENJIN_PENNANT:
-            case SPELL_UNDERCITY_PENNANT:
-            case SPELL_ORGRIMMAR_PENNANT:
-            case SPELL_SILVERMOON_PENNANT:
-            case SPELL_THUNDERBLUFF_PENNANT:
-            case SPELL_DARNASSUS_PENNANT:
-            case SPELL_EXODAR_PENNANT:
-            case SPELL_GNOMEREGAN_PENNANT:
-            case SPELL_IRONFORGE_PENNANT:
-            case SPELL_STORMWIND_PENNANT:
-                creature->RemoveAura(SPELL_SENJIN_PENNANT);
-                creature->RemoveAura(SPELL_UNDERCITY_PENNANT);
-                creature->RemoveAura(SPELL_ORGRIMMAR_PENNANT);
-                creature->RemoveAura(SPELL_SILVERMOON_PENNANT);
-                creature->RemoveAura(SPELL_THUNDERBLUFF_PENNANT);
-                creature->RemoveAura(SPELL_DARNASSUS_PENNANT);
-                creature->RemoveAura(SPELL_EXODAR_PENNANT);
-                creature->RemoveAura(SPELL_GNOMEREGAN_PENNANT);
-                creature->RemoveAura(SPELL_IRONFORGE_PENNANT);
-                creature->RemoveAura(SPELL_STORMWIND_PENNANT);
-                creature->AddAura(action, creature);
-
-                player->CLOSE_GOSSIP_MENU();
-                break;
-        }
-    return true;
-    }
-
-    struct npc_argent_petAI : public ScriptedAI
-    {
-        npc_argent_petAI(Creature* creature) : ScriptedAI(creature)
-        {
-            Reset();
-        }
-        
-        void Reset()
-        {
-            if (Aura* tired = me->GetOwner()->GetAura(SPELL_CHECK_TIRED))
-            {
-                int32 duration = tired->GetDuration();
-                tired = me->AddAura(SPELL_SQUIRE_TIRED, me);
-                tired->SetDuration(duration);
-            }
-        }
-
-        void UpdateAI(uint32 const diff)
-        {
-
-            if (me->HasAura(SPELL_SQUIRE_TIRED) && me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER | UNIT_NPC_FLAG_MAILBOX | UNIT_NPC_FLAG_VENDOR))
-            {
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_BANKER);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_MAILBOX);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR);
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                me->RemoveAura(SPELL_CHECK_MOUNT);
-                if (me->IsMounted())
-                    me->Dismount();
-            }
-        }
-
-    };
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_argent_petAI(creature);
-    }
-};
-
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
@@ -3548,8 +2982,4 @@ void AddSC_npcs_special()
     new npc_earth_elemental();
     new npc_firework();
     new npc_spring_rabbit();
-    new npc_dark_iron_guzzler();
-    new npc_lonely_turkey();
-    new npc_wild_turkey();
-    new npc_argent_pet();
 }

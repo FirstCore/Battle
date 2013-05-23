@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,19 +92,22 @@ public:
             }
         }
 
-        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
+        void SpellHit(Unit* caster, const SpellInfo* Spellkind)
         {
-            if ((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
-                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
-            {
-                CAST_PLR(Hitter)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
-                DoCast(me, SPELL_REVIVE_SELF);
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-                //me->RemoveAllAuras();
-                Talk(SAY_HEAL);
-                spellHit = true;
-            }
+            if (Spellkind->Id != SPELL_SHIMMERING_VESSEL || spellHit)
+                return;
+
+            Player* player = caster->ToPlayer();
+            if (!player || !player->IsActiveQuest(QUEST_REDEEMING_THE_DEAD))
+                return;
+
+            player->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
+            DoCast(me, SPELL_REVIVE_SELF);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+            //me->RemoveAllAuras();
+            Talk(SAY_HEAL);
+            spellHit = true;
         }
     };
 };

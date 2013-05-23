@@ -10,6 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+<<<<<<< HEAD
   Custom/hunterpet_vendor.cpp
   Custom/Transmogrification.cpp
   Custom/Transmogrification.h
@@ -26,6 +27,8 @@ set(scripts_STAT_SRCS
   Custom/world_chat_race.cpp
   Custom/allinone.cpp
   Custom/ArenaFastStart.cpp
+=======
+>>>>>>> ed57ac688ee7d952f4ae7f582a404ced22c6c5d2
 )
 
 message("  -> Prepared: Custom")

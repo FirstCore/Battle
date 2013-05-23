@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -190,46 +194,47 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || who->GetTypeId() != TYPEID_PLAYER)
+            if (!who)
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            Player* player = who->ToPlayer();
+            if (!player)
+                return;
+
+            switch (me->GetAreaId())
             {
-                switch (me->GetAreaId())
-                {
-                    case 199:                                   //felstone
-                        if (CAST_PLR(who)->GetQuestStatus(5216) == QUEST_STATUS_INCOMPLETE ||
-                            CAST_PLR(who)->GetQuestStatus(5229) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            me->SummonCreature(11075, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                            DoDie();
-                        }
-                        break;
-                    case 200:                                   //dalson
-                        if (CAST_PLR(who)->GetQuestStatus(5219) == QUEST_STATUS_INCOMPLETE ||
-                            CAST_PLR(who)->GetQuestStatus(5231) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            me->SummonCreature(11077, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                            DoDie();
-                        }
-                        break;
-                    case 201:                                   //gahrron
-                        if (CAST_PLR(who)->GetQuestStatus(5225) == QUEST_STATUS_INCOMPLETE ||
-                            CAST_PLR(who)->GetQuestStatus(5235) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            me->SummonCreature(11078, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                            DoDie();
-                        }
-                        break;
-                    case 202:                                   //writhing
-                        if (CAST_PLR(who)->GetQuestStatus(5222) == QUEST_STATUS_INCOMPLETE ||
-                            CAST_PLR(who)->GetQuestStatus(5233) == QUEST_STATUS_INCOMPLETE)
-                        {
-                            me->SummonCreature(11076, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                            DoDie();
-                        }
-                        break;
-                }
+                case 199:                                   //felstone
+                    if (player->GetQuestStatus(5216) == QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestStatus(5229) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->SummonCreature(11075, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        DoDie();
+                    }
+                    break;
+                case 200:                                   //dalson
+                    if (player->GetQuestStatus(5219) == QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestStatus(5231) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->SummonCreature(11077, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        DoDie();
+                    }
+                    break;
+                case 201:                                   //gahrron
+                    if (player->GetQuestStatus(5225) == QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestStatus(5235) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->SummonCreature(11078, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        DoDie();
+                    }
+                    break;
+                case 202:                                   //writhing
+                    if (player->GetQuestStatus(5222) == QUEST_STATUS_INCOMPLETE ||
+                        player->GetQuestStatus(5233) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        me->SummonCreature(11076, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        DoDie();
+                    }
+                    break;
             }
         }
     };
@@ -267,7 +272,8 @@ public:
                 return;
 
             if (me->FindNearestGameObject(GO_BEACON_TORCH, 10.0f))
-                CAST_PLR(who)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
+                if (Player* player = who->ToPlayer())
+                    player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
         }
     };
 };

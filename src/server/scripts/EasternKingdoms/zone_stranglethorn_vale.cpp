@@ -1,5 +1,9 @@
 /*
+ *
+ * Copyright (C) 2011-2013 ArkCORE <http://www.arkania.net/>
+ *
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -64,10 +68,12 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
+            if (bReset || spell->Id != 3607)
+                return;
+
+            if (Player* player = caster->ToPlayer())
             {
-                                                                //Yenniku's Release
-                if (!bReset && CAST_PLR(caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
+                if (player->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE) //Yenniku's Release
                 {
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
                     me->CombatStop();                   //stop combat
@@ -78,7 +84,6 @@ public:
                     Reset_Timer = 60000;
                 }
             }
-            return;
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -94,14 +99,14 @@ public:
                     me->setFaction(28);                     //troll, bloodscalp
                     return;
                 }
-                else Reset_Timer -= diff;
+
+                Reset_Timer -= diff;
 
                 if (me->isInCombat() && me->getVictim())
                 {
-                    if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
+                    if (Player* player = me->getVictim()->ToPlayer())
                     {
-                        Unit* victim = me->getVictim();
-                        if (CAST_PLR(victim)->GetTeam() == HORDE)
+                        if (player->GetTeam() == HORDE)
                         {
                             me->CombatStop();
                             me->DeleteThreatList();
